@@ -1,37 +1,46 @@
-# import requests
-# from bs4 import BeautifulSoup
-
-# base_url = "https://www.example.com?page={}"
-# for page in range(1, 6):  # Scrape first 5 pages
-#     url = base_url.format(page)
-#     print(f"Scraping {url}...")
-#     response = requests.get(url)
-#     soup = BeautifulSoup(response.text, 'lxml')
-
-#     titles = soup.find_all('h2')
-#     for title in titles:
-#         print(title.get_text(strip=True))
-
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+import csv
+import time
 
-url = "https://quotes.toscrape.com"
+base_url = "https://quotes.toscrape.com"
+url = base_url
+
+quotes_data = []
 
 while url:
     print("Scraping:", url)
 
-    response = requests.get(url)
+    response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(response.text, "lxml")
 
-    quotes = soup.find_all("span", class_="text")
+    quotes = soup.find_all("div", class_="quote")
+
     for q in quotes:
-        print(q.get_text())
+        text = q.find("span", class_="text").get_text(strip=True)
+        author = q.find("small", class_="author").get_text(strip=True)
+        tags = [tag.get_text(strip=True) for tag in q.find_all("a", class_="tag")]
+
+        quotes_data.append({
+            "quote": text,
+            "author": author,
+            "tags": ", ".join(tags)
+        })
 
     next_btn = soup.find("li", class_="next")
+    url = urljoin(base_url, next_btn.a["href"]) if next_btn else None
 
-    if next_btn:
-        next_link = next_btn.find("a")["href"]
-        url = urljoin(url, next_link)
-    else:
-        url = None
+    time.sleep(1)  # be polite
+
+print("Total quotes scraped:", len(quotes_data))
+with open("quotes.csv", "w", newline="", encoding="utf-8") as f:
+    writer = csv.DictWriter(
+        f,
+        fieldnames=["quote", "author", "tags"]
+    )
+    writer.writeheader()
+    writer.writerows(quotes_data)
+
+print("Saved to quotes.csv")
+
