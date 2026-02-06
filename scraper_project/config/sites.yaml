@@ -1,0 +1,23 @@
+camp_nike:
+  type: dynamic
+  base_url: "https://example.com/camps"
+  program_card: ".camp-card"
+  fields:
+    program_name: ".title"
+    sport: ".sport"
+    age: ".age"
+    location: ".location"
+    dates: ".dates"
+    link: "a@href"
+
+another_site:
+  type: static
+  base_url: "https://example2.com/programs"
+  program_card: ".program"
+  fields:
+    program_name: "h2"
+    sport: ".category"
+    age: ".age-range"
+    location: ".city"
+    dates: ".schedule"
+    link: "a@href"
