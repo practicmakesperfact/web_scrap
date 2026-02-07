@@ -32,7 +32,12 @@ while True:
     except:
         break
 
+
+print("Scraping finished.")
+
+input("Press ENTER to close browser...")
 driver.quit()
+
 
 with open("selenium_quotes.csv", "w", newline="", encoding="utf-8") as f:
     writer = csv.DictWriter(f, fieldnames=["quote", "author"])
